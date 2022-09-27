@@ -1,7 +1,7 @@
 # How to install docker
     
-You can follow the follwoing links to get the [docker installtion](https://docs.docker.com/engine/install/ubuntu/)
-    You can also follow the [post-installtion](https://docs.docker.com/engine/install/linux-postinstall/) steps to get things running
+You can follow the follwoing links to get the [docker installation](https://docs.docker.com/engine/install/ubuntu/)
+    You can also follow the [post-installation](https://docs.docker.com/engine/install/linux-postinstall/) steps to get things running
 # Why docker
 Docker provides us a good abstraction to the enviroment to deploy the code.
 Multiple different codebases might require multiple conflicting dependencies. Examples Ubuntu 22.04 uses libc 2.35 which conflicts with argobots deployment. 
@@ -57,11 +57,15 @@ Docker is not a VM. It is just wrapper over [cgroups](https://www.nginx.com/blog
 	    -v "$(pwd)"/data:/data/ \
 	argobots
    ```
-   The script generates a folder named data which will be mounted to the docker container. All the state/updates should be stored in the data folder inside docker. 
+   The script generates a folder named data which will be mounted to the docker container. All the state/updates should be stored in the data folder inside docker.
+
    **--privileged=true **is needed because we loose rights to access the folder inside docker container
-   **  -it** tells the run docker in interactive mode
-   **-v** mounts the $(pwd)/data host folder to /data container folder. (This can be done in much nicer manner using volumes which is remove the need of using priveleged=true)
-   **argbots** is the name of the image
+
+   ** -it ** tells the run docker in interactive mode
+
+   **-v ** mounts the $(pwd)/data host folder to /data container folder. (This can be done in much nicer manner using volumes which is remove the need of using priveleged=true)
+
+   ** argbots ** is the name of the image
 
    You can change the bash script and update which folder we want to pass through.
     
