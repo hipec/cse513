@@ -59,13 +59,13 @@ Docker is not a VM. It is just wrapper over [cgroups](https://www.nginx.com/blog
    ```
    The script generates a folder named data which will be mounted to the docker container. All the state/updates should be stored in the data folder inside docker.
 
-   **--privileged=true **is needed because we loose rights to access the folder inside docker container
+   **--privileged=true** is needed because we loose rights to access the folder inside docker container
 
-   ** -it ** tells the run docker in interactive mode
+   **-it** tells the run docker in interactive mode
 
-   **-v ** mounts the $(pwd)/data host folder to /data container folder. (This can be done in much nicer manner using volumes which is remove the need of using priveleged=true)
+   **-v** mounts the $(pwd)/data host folder to /data container folder. (This can be done in much nicer manner using volumes which is remove the need of using priveleged=true)
 
-   ** argbots ** is the name of the image
+   **argbots** is the name of the image
 
    You can change the bash script and update which folder we want to pass through.
     
