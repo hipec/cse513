@@ -7,7 +7,10 @@ Docker provides us a good abstraction to the enviroment to deploy the code.
 Multiple different codebases might require multiple conflicting dependencies. Examples Ubuntu 22.04 uses libc 2.35 which conflicts with argobots deployment. 
 Why manage these dependencies when you can  have a environment tailored to you.
 Docker is not a VM. It is just wrapper over [cgroups](https://www.nginx.com/blog/what-are-namespaces-cgroups-how-do-they-work/#:~:text=Namespaces%20provide%20isolation%20of%20system,can%20use%20namespaces%20and%20cgroups.) and [namespaces](https://www.nginx.com/blog/what-are-namespaces-cgroups-how-do-they-work/#:~:text=Namespaces%20provide%20isolation%20of%20system,can%20use%20namespaces%20and%20cgroups.) on a linux process (commonly default namespaces is used for all process).
-
+![image](images/osglibversion.png)
+Incompatible glibc version
+![image](images/failed-testcases.png)
+Failed testcases
 
 # Basics of Docker
 
@@ -70,3 +73,7 @@ Docker is not a VM. It is just wrapper over [cgroups](https://www.nginx.com/blog
    You can change the bash script and update which folder we want to pass through.
     
 ## Docker vs baremetal results
+![image](images/bare_metal.png)
+Running the process on baremetal
+![image](images/docker.png)
+Running the process on docker
