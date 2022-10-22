@@ -1,3 +1,7 @@
+/*
+ * Author: Vivek Kumar
+ * vivekk@iiitd.ac.in
+ */
 #include<iostream>
 #include<stdio.h>
 #include<assert.h>

@@ -14,7 +14,6 @@
 #-mavx2
 #-mavx512f
 
-#Use sse4 instruction set, and ask compiler to provide compile time info on vectorization
 VECFLAG = -msse4 -fopt-info-vec
 TARGETS := vecadd vecmul matmul
 
@@ -22,5 +21,5 @@ all: clean $(TARGETS)
 clean:
 	rm -f $(TARGETS) 2>/dev/null
 %: %.cpp
-	g++ -std=c++17 -O3 $(VECFLAG) -I../vcl_include/version2 -o $@ $^
+	g++ -std=c++17 -O3 $(VECFLAG) -I../version2 -o $@ $^
 

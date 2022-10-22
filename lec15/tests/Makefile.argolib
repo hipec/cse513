@@ -1,0 +1,16 @@
+include $(ARGOLIB_ROOT)/include/argolib.mak
+
+VECFLAG = -msse4 -fopt-info-vec
+
+TARGETS := par_matmul
+
+all: clean $(TARGETS) clean-obj
+
+%: %.cpp
+	$(CXX) -std=c++17 -O3  $(VECFLAG) -I../version2 $(ARGOLIB_CXXFLAGS) $(ARGOLIB_LDFLAGS) -o $@ $^ $(ARGOLIB_LDLIBS) -lm
+
+clean-obj:
+	rm -rf *.o
+
+clean:
+	rm -rf *.o $(TARGETS)
