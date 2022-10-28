@@ -15,7 +15,7 @@ namespace compute = boost::compute;
 
 int main(int argc, char** argv) {
   int size = argc>1?atoi(argv[1]):1024*1024;
-
+  double time_gpu=0;
   // lookup default compute device
   auto gpu = compute::system::default_device();
   // create opencl context for the device
@@ -49,12 +49,13 @@ int main(int argc, char** argv) {
     future_a.wait();
     future_b.wait();
   });
+  time_gpu+=timer::duration();
   // Create function defining the body of the for-loop for carrying out vector addition
   BOOST_COMPUTE_FUNCTION(int, vector_sum, (int x, int y), {
     return x + y;
   });
   // Launch the computation on the GPU using the command queue created above
-  timer::kernel("kernel execution", [&]() {
+  timer::kernel("GPU kernel execution", [&]() {
     compute::transform(
       vector_a.begin(),
       vector_a.end(),
@@ -63,13 +64,20 @@ int main(int argc, char** argv) {
       vector_sum
     );
   });  
+  time_gpu+=timer::duration();
   // transfer results back to the host array 'c'
   timer::kernel("copy from device", [&]() {
     compute::copy(vector_c.begin(), vector_c.end(), c);
   });
+  time_gpu+=timer::duration();
+  std::cout<<"Total GPU time = "<<1000*time_gpu<<"ms"<<std::endl;
   //verify the computation
   for(int i=0; i<size; i++) assert(c[i] == 3);
-  std::cout<<"Test Passed\n";
+  std::cout<<"Test Passed at GPU\n";
+  timer::kernel("CPU kernel", [=]() {
+    for(int i=0; i<size; i++) c[i] = a[i] + b[i];
+  });
+  std::cout<<"Speedup of GPU over CPU= "<<timer::duration()/time_gpu<<std::endl;
   //cleanup
   delete [] a;
   delete [] b;

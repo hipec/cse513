@@ -77,6 +77,7 @@ int main(int argc, char** argv) {
   timer::kernel("CPU kernel", [=]() {
     for(int i=0; i<size; i++) c[i] = a[i] + b[i];
   });
+  std::cout<<"Speedup of GPU over CPU= "<<timer::duration()/time_gpu<<std::endl;
   //cleanup
   delete [] a;
   delete [] b;
