@@ -1,4 +1,4 @@
-TARGETS := vecadd vecadd_verbose
+TARGETS := vecadd
 
 all: clean $(TARGETS)
 clean:

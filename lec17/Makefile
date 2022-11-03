@@ -1,4 +1,4 @@
-TARGETS := matmul
+TARGETS := matmul vecadd
 
 all: clean $(TARGETS)
 clean:
