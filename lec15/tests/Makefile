@@ -21,5 +21,5 @@ all: clean $(TARGETS)
 clean:
 	rm -f $(TARGETS) 2>/dev/null
 %: %.cpp
-	g++ -std=c++17 -O3 $(VECFLAG) -I../version2 -o $@ $^
+	g++ -std=c++17 -O3 $(VECFLAG) -I../vcl_include/version2 -o $@ $^
 
