@@ -1,1 +1,5 @@
 This repository contains the source code of the examples discussed in the lecture slides of CSE513 (Parallel Runtimes for Modern Processors) course at IIITD.
+
+Course Description:
+
+Computing hardware is becoming more and more complex. Today and in the foreseeable future, performance will be delivered principally by increased hardware parallelism. Modern multicore processors scale to over one hundred cores, have wide vector units, maintain a complex memory hierarchy and even share the memory with accelerators such as GPU. Conventional programming models using threads impose significant complexity to organize code into multiple threads of control and balance work amongst threads to ensure proper utilization of computing resources. This shortcoming has helped the advent of parallel runtimes that assist the programmer by efficiently scheduling the parallel tasks over available resources. This course introduces the design and implementation of such a parallel runtime and explores the challenges in achieving performance and energy efficiency over modern processors.
