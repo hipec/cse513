@@ -3,17 +3,18 @@
  * vivekk@iiitd.ac.in
  */
 #include <iostream>
+#include <thread>
 #include <assert.h>
-#include <boost/compute/core.hpp> 
+#include <boost/compute/core.hpp>
 #include <boost/compute/algorithm/copy.hpp>
 #include <boost/compute/algorithm/transform.hpp>
 #include <boost/compute/container/vector.hpp>
 #include <boost/compute/memory_object.hpp>
 #include <boost/compute/utility/source.hpp>
-
-#include <thread>
+#include <boost/compute/svm.hpp>
 
 #include "timer.h"
+#include "svm_wrapper.h"
 
 namespace compute = boost::compute;
 
@@ -37,11 +38,21 @@ int main(int argc, char** argv) {
     gpu_end_row = vector_width * (gpu_end_row/vector_width);
   }
   std::cout<<"[USAGE]: ./matmul <square matrix size> <Fraction of computation for GPU> <Total CPU threads> <GPU vector width>\n";
+
+  // lookup default compute device
+  auto gpu = compute::system::default_device();
+  // create opencl context for the device
+  auto context = compute::context(gpu); 
+  // create command queue for the device
+  compute::command_queue queue(context, gpu);
+  // print device name 
+  std::cout << "device = " << gpu.name() << std::endl;
   double time_hybrid=0, time_cpu=0;
   std::cout<<"Matrix Size = "<< size << " GPU Size = " << gpu_end_row << " CPU Size = " << (size-gpu_end_row) << " CPU Threads = "<<numcpu<< " GPU vector width = " << vector_width<<std::endl;
-  a = new float[size*size];
-  b = new float[size*size];
-  c = new float[size*size];
+
+  a = my_svm::alloc<float>(context, size*size);
+  b = my_svm::alloc<float>(context, size*size);
+  c = my_svm::alloc<float>(context, size*size);
   //////////////////////////////////////////////////////////////////
   //////// Calculate the sequential CPU-only execution time ////////
   //////////////////////////////////////////////////////////////////
@@ -61,20 +72,6 @@ int main(int argc, char** argv) {
   ////////////// Set up parallel execution environment /////////////
   //////////////////////////////////////////////////////////////////
   initialize();
-  // lookup default compute device
-  auto gpu = compute::system::default_device();
-  // create opencl context for the device
-  auto context = compute::context(gpu); 
-  // create command queue for the device
-  compute::command_queue queue(context, gpu);
-  // print device name 
-  std::cout << "device = " << gpu.name() << std::endl;
-  // create 'a' vector on the GPU
-  compute::buffer vector_a(context, size * size * sizeof(float), compute::memory_object::mem_flags::use_host_ptr, a);
-  // create 'b' vector on the GPU
-  compute::buffer vector_b(context, size * size * sizeof(float), compute::memory_object::mem_flags::use_host_ptr, b);
-  // create output 'c' vector on the GPU
-  compute::buffer vector_c(context, size * size * sizeof(float), compute::memory_object::mem_flags::use_host_ptr, c);
   // source code for the add kernel
   const char source[] = BOOST_COMPUTE_STRINGIZE_SOURCE(
       __kernel void matmul(__global const float *a,
@@ -91,11 +88,14 @@ int main(int argc, char** argv) {
       }
   );
   // create the program with the source and compile
-  compute::program program = compute::program::build_with_source(source, context);
+  compute::program program = compute::program::build_with_source(source, context, "-cl-std=CL2.0");
   // create the kernel
   compute::kernel kernel(program, "matmul");
   // set the kernel arguments
-  kernel.set_args(vector_a, vector_b, vector_c, size);
+  kernel.set_arg_svm_ptr(0, a);
+  kernel.set_arg_svm_ptr(1, b);
+  kernel.set_arg_svm_ptr(2, c);
+  kernel.set_arg(3, size);
  
   auto start = std::chrono::system_clock::now(); 
   //First compute over CPU
@@ -119,14 +119,18 @@ int main(int argc, char** argv) {
   }
   
   if(gpu_end_row>0) {
-    // write the data from 'a' and 'b' to the device
-    queue.enqueue_write_buffer(vector_a, 0, size * size * sizeof(float), a);
-    queue.enqueue_write_buffer(vector_b, 0, size * size * sizeof(float), b);
     // run the add kernel
-    size_t global_size[2] = {gpu_end_row, size};
+    /* Total number of global work-items that would execute the kernel function */
+    size_t global_size[2] = {gpu_end_row /*row size*/, size /*column size*/};
+    /* Total number of local work-size that would be used to determine how to 
+     * break the global work-items specified by global_size into appropriate
+     *  work-group instances. If local_size is specified, the values specified 
+     *  in global_size[0],... global_size[work_dim - 1] must be evenly divisable 
+     *  by the corresponding values specified in local_size[0],... local_size[work_dim - 1].
+     */
     size_t local_size[2] = {vector_width, vector_width};
     queue.enqueue_nd_range_kernel(kernel, 2, 0, global_size, local_size);
-    queue.enqueue_read_buffer(vector_c, 0, size * gpu_end_row * sizeof(float), c); //blocking communication
+    queue.finish();
   }
   //block for CPU threads
   for(int i=0; i<numcpu; i++) threads[i].join();
@@ -142,8 +146,8 @@ int main(int argc, char** argv) {
   std::cout<<"Parallel Execution Speedup = "<<time_cpu/time_hybrid<<std::endl;
   //cleanup
   delete [] threads;
-  delete [] a;
-  delete [] b;
-  delete [] c;
+  my_svm::free(context, a);
+  my_svm::free(context, b);
+  my_svm::free(context, c);
   return 0;
 }
