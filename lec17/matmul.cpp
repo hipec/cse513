@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
   if(gpu_end_row%vector_width != 0) {
     gpu_end_row = vector_width * (gpu_end_row/vector_width);
   }
-  std::cout<<"[USAGE]: ./matmul <square matrix size> <Fraction of computation for GPU> <Total CPU threads> <GPU vector width>\n";
+  std::cout<<"\n[USAGE]: ./matmul <square matrix size> <Fraction of computation for GPU> <Total CPU threads> <GPU vector width>\n";
 
   // lookup default compute device
   auto gpu = compute::system::default_device();
@@ -97,11 +97,12 @@ int main(int argc, char** argv) {
   kernel.set_arg_svm_ptr(2, c);
   kernel.set_arg(3, size);
  
-  auto start = std::chrono::system_clock::now(); 
+  timer::start_logger();
+  auto start = std::chrono::system_clock::now();
   //First compute over CPU
   // Launch threads to complete the parallel execution at CPU
   std::thread *threads = new std::thread[numcpu];
-  const int chunksize = (size-gpu_end_row) / numcpu;
+  const int chunksize = (size-gpu_end_row)>0 ? ((size-gpu_end_row) / numcpu) : 0;
   for(int i=0; i<numcpu; i++) {
     int start = gpu_end_row + (chunksize * i);
     int end = (i+1)==size ? size : start + chunksize;
@@ -134,9 +135,9 @@ int main(int argc, char** argv) {
   }
   //block for CPU threads
   for(int i=0; i<numcpu; i++) threads[i].join();
+  timer::end_logger();
   auto end = std::chrono::system_clock::now();
   std::chrono::duration<double> elapsed = end - start;
-  std::cout<<"Time = "<<elapsed.count() * 1000 << " ms" << std::endl;
   time_hybrid = elapsed.count();
   //verify the computation
   for(int i=0; i<size*size; i++) {
