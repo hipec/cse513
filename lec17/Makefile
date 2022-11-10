@@ -1,6 +1,6 @@
 PCMROOT=/opt/intel/pcm
 
-TARGETS := matmul vecadd
+TARGETS := matmul vecadd gpu_matmul
 
 all: clean $(TARGETS)
 clean:

@@ -1,6 +1,7 @@
 /*
  * Author: Vivek Kumar
  * vivekk@iiitd.ac.in
+ * This is a hybrid CPU+GPU implementation of matrix multiplication for Intel Integrated SoC
  */
 #include <iostream>
 #include <thread>
