@@ -3,7 +3,7 @@
 You can follow the follwoing links to get the [docker installation](https://docs.docker.com/engine/install/ubuntu/)
     You can also follow the [post-installation](https://docs.docker.com/engine/install/linux-postinstall/) steps to get things running
 # Why docker
-Docker provides us a good abstraction to the enviroment to deploy the code.
+Docker provides us a good abstraction to the environment to deploy the code.
 Multiple different codebases might require multiple conflicting dependencies. Examples Ubuntu 22.04 uses libc 2.35 which conflicts with argobots deployment. 
 Why manage these dependencies when you can  have a environment tailored to you.
 Docker is not a VM. It is just wrapper over [cgroups](https://www.nginx.com/blog/what-are-namespaces-cgroups-how-do-they-work/#:~:text=Namespaces%20provide%20isolation%20of%20system,can%20use%20namespaces%20and%20cgroups.) and [namespaces](https://www.nginx.com/blog/what-are-namespaces-cgroups-how-do-they-work/#:~:text=Namespaces%20provide%20isolation%20of%20system,can%20use%20namespaces%20and%20cgroups.) on a linux process (commonly default namespaces is used for all process).
@@ -26,7 +26,7 @@ Failed testcases
 
 ### Docker Images
 
-   These work as a blueprint for our environment which will be generated. Everytime we want the environment(container). Images are templates which can be quickly deployed. Examples of images we can use can be found on [dockerhub](https://hub.docker.com/)
+   These work as a blueprint for our environment which will be generated. Images are templates which can be quickly deployed. Examples of images we can use can be found on [dockerhub](https://hub.docker.com/)
 
 ### Dockerfile
     
@@ -67,11 +67,11 @@ Failed testcases
    ```
    The script generates a folder named data which will be mounted to the docker container. All the state/updates should be stored in the data folder inside docker.
 
-   **--privileged=true** is needed because we loose rights to access the folder inside docker container
+   **--privileged=true** is needed because we lose rights to access the folder inside docker container (This can be removed if we use volumes)
 
    **-it** tells the run docker in interactive mode
 
-   **-v** mounts the $(pwd)/data host folder to /data container folder. (This can be done in much nicer manner using volumes which is remove the need of using priveleged=true)
+   **-v** mounts the $(pwd)/data **host** folder to /data **container** folder. (This can be done in much nicer manner using volumes)
 
    **argbots** is the name of the image
 
